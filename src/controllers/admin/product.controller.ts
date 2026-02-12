@@ -105,6 +105,19 @@ class ProductController {
             })
         );
     };
+
+    /**
+     * Kiểm tra sản phẩm có đang được pre-order hay không
+     */
+    checkProductPreOrder = async (req: Request, res: Response) => {
+        const sku = req.params.sku as string;
+        const isPreOrder = await productService.checkProductPreOrder(sku);
+        res.json(
+            ApiResponse.success('Check pre-order status successfully', {
+                isPreOrder,
+            })
+        );
+    };
 }
 
 export default new ProductController();

@@ -3,3 +3,8 @@ export const enum PreOrderImportStatus {
     DONE = 'done',
     CANCELLED = 'cancelled',
 }
+
+export const enum PreOrderImportType {
+    NORMAL = 'NORMAL',
+    PRE_ORDER = 'PRE-ORDER',
+}

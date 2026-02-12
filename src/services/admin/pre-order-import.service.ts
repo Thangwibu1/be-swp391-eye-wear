@@ -16,7 +16,7 @@ class PreOrderImportService {
         payload: PreOrderImportRequest,
         context: AuthAdminContext
     ) {
-        const { sku, description, targetDate, targetQuantity } = payload;
+        const { sku, description, type, targetDate, targetQuantity } = payload;
 
         // 1. Verify that the user is a MANAGER
         const adminAccount = await adminAccountRepository.findById(context.id);
@@ -46,6 +46,7 @@ class PreOrderImportService {
         const preOrderImport = await preOrderImportRepository.create({
             sku,
             description,
+            type,
             targetDate,
             targetQuantity,
             managerResponsibility: context.id,

@@ -3,6 +3,7 @@ import {
     ProductRepository,
     productRepository,
 } from '../../repositories/product/product.repository';
+import { preOrderImportRepository } from '../../repositories/pre-order-import/pre-order-import.repository';
 import {
     ProductCreateDTO,
     ProductUpdateDTO,
@@ -13,6 +14,10 @@ import * as productConverter from '../../converters/admin/product.converter';
 import { ProductListQuery } from '../../types/product/product/product.query';
 import { slugify, generateUniqueSlug } from '../../utils/slug.util';
 import { generateSkuBase, generateVariantSku } from '../../utils/sku.util';
+import {
+    PreOrderImportType,
+    PreOrderImportStatus,
+} from '../../config/enums/pre-order-import.enum';
 
 class ProductService {
     /**
@@ -266,7 +271,40 @@ class ProductService {
             productDetail: product,
             variantDetail: variant,
         };
-    }
+    };
+
+    /**
+     * Kiểm tra xem sản phẩm có đang được pre-order hay không
+     * @param sku - SKU của một variant bất kỳ của sản phẩm
+     * @returns boolean true nếu sản phẩm đang có đợt pre-order (type PRE-ORDER)
+     */
+    checkProductPreOrder = async (sku: string): Promise<boolean> => {
+        // 1. Tìm sản phẩm chứa SKU này (chỉ tìm sản phẩm chưa xóa)
+        const product = await productRepository.findOne({
+            'variants.sku': sku,
+            deletedAt: null,
+        });
+
+        if (!product) {
+            throw new NotFoundRequestError(
+                'Product not found or has been deleted with variant SKU: ' + sku
+            );
+        }
+
+        // 2. Lấy danh sách tất cả SKU của các variant thuộc sản phẩm này
+        const variantSkus = product.variants
+            .map(v => v.sku)
+            .filter((sku): sku is string => !!sku);
+
+        // 3. Kiểm tra xem có bất kỳ SKU nào trong danh sách này có đợt pre-order đang hoạt động hay không
+        const preOrderImport =
+            await preOrderImportRepository.findActivePreOrderImportBySkus(
+                variantSkus,
+                PreOrderImportType.PRE_ORDER
+            );
+
+        return !!preOrderImport;
+    };
 }
 
 export default new ProductService();

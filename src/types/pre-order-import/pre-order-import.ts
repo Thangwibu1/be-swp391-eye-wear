@@ -1,9 +1,13 @@
 import z from 'zod';
-import { PreOrderImportStatus } from '../../config/enums/pre-order-import.enum';
+import {
+    PreOrderImportStatus,
+    PreOrderImportType,
+} from '../../config/enums/pre-order-import.enum';
 
 export const PreOrderImportSchema = z.object({
     sku: z.string().min(1, 'SKU is required'),
     description: z.string().min(1, 'Description is required'),
+    type: z.enum([PreOrderImportType.NORMAL, PreOrderImportType.PRE_ORDER]),
     targetDate: z.date(),
     targetQuantity: z.number().min(1, 'Target quantity is required'),
     managerResponsibility: z
@@ -22,6 +26,7 @@ export const PreOrderImportSchema = z.object({
 export const PreOrderImportRequestSchema = z.object({
     sku: z.string().min(1, 'SKU is required'),
     description: z.string().min(1, 'Description is required'),
+    type: z.enum([PreOrderImportType.NORMAL, PreOrderImportType.PRE_ORDER]),
     targetDate: z.coerce.date(),
     targetQuantity: z.number().min(1, 'Target quantity is required'),
 });

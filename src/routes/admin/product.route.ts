@@ -29,6 +29,13 @@ router.get(
     productController.getProductStatistics
 );
 
+// Check pre-order status
+router.get(
+    '/check-pre-order/:sku',
+    // authenticateMiddleware,
+    productController.checkProductPreOrder
+);
+
 // CRUD routes
 // Note: Body validation removed for create/update due to union type schemas
 // Validation will be handled at service layer

@@ -1,6 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 import { PreOrderImport } from '../../types/pre-order-import/pre-order-import';
-import { PreOrderImportStatus } from '../../config/enums/pre-order-import.enum';
+import {
+    PreOrderImportStatus,
+    PreOrderImportType,
+} from '../../config/enums/pre-order-import.enum';
 
 export interface IPreOrderImportDocument
     extends mongoose.Document, PreOrderImport {}
@@ -17,10 +20,16 @@ const PreOrderImportSchema = new Schema<IPreOrderImportDocument>(
             required: [true, 'Description is required'],
             trim: true,
         },
+        type: {
+            type: String,
+            enum: [PreOrderImportType.NORMAL, PreOrderImportType.PRE_ORDER],
+            required: [true, 'Type is required'],
+        },
         targetDate: {
             type: Date,
             required: [true, 'Target date is required'],
         },
+
         targetQuantity: {
             type: Number,
             required: [true, 'Target quantity is required'],
