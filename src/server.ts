@@ -1,8 +1,9 @@
-import { httpServer, io } from './app';
+import { httpServer} from './app';
 import { config } from './config/env.config';
 import { connectMongoDB } from './config/database/mongodb.config';
 import { redisClient } from './config/database/redis.config';
 import { checkSupabaseConnection } from './config/supabase.config';
+import { MySocketServer } from './socket/index.socket';
 // import './queues/invoice.worker';
 const startServer = async () => {
     try {
@@ -10,16 +11,10 @@ const startServer = async () => {
         await connectMongoDB();
         await redisClient.connect();
         await checkSupabaseConnection();
-
-        // Socket.IO connection handler
-        io.on('connection', socket => {
-            console.log(`✅ Client connected: ${socket.id}`);
-
-            socket.on('disconnect', () => {
-                console.log(`❌ Client disconnected: ${socket.id}`);
-            });
-        });
-
+        // init socket server instance
+        const mySocketServer = new MySocketServer();
+        mySocketServer.init(httpServer);
+        // end init socket server instance
         // Start server
         httpServer.listen(config.port, () => {
             console.log(`🚀 Server running on port ${config.port}`);

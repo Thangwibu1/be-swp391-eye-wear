@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { config } from './config/env.config';
 import { errorMiddleware } from './middlewares/share/error.middleware';
@@ -19,12 +18,6 @@ import session from 'express-session';
 const app: Application = express();
 // Tạo HTTP server từ Express app (cần cho Socket.IO)
 const httpServer = createServer(app);
-export const io = new Server(httpServer, {
-    cors: {
-        origin: config.cors.origin, // Cho phép frontend kết nối
-        credentials: true, // Cho phép gửi cookies
-    },
-});
 /**
  * 1. HELMET - Bảo mật HTTP headers
  * - Bảo vệ app khỏi các lỗ hổng web phổ biến
