@@ -1,7 +1,13 @@
-export const serverEvent = {
-  SERVER_RECEIVE_MESSAGE: "SERVER_RECEIVE_MESSAGE",
+export const emittedEvent = {
+  RECEIVE_MESSAGE: "RECEIVE_MESSAGE",
+  UPDATE_CHAT_LIST: "UPDATE_CHAT_LIST",
+  READ_BY_SHOP: "READ_BY_SHOP",
+  READ_BY_CUSTOMER: "READ_BY_CUSTOMER",
+  CUSTOMER_ONLINE: "CUSTOMER_ONLINE",
 };
-export const clientEvent = {
+export const listenedEvent = {
   SEND_A_MESSAGE: "SEND_A_MESSAGE",
-  TYPING: "TYPING"
+  TYPING: "TYPING",
+  JOIN_ROOM: "JOIN_ROOM",
+  LEAVE_ROOM: "LEAVE_ROOM",
 }

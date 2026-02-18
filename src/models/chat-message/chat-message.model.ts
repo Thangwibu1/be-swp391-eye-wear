@@ -8,20 +8,13 @@ const chatMessageSchema = new Schema({
     required: true,
   },
   senderId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    refPath: 'senderModel' // Trỏ đến field chỉ định bảng
-  },
-  // Field này lưu tên Model: 'Customer' hoặc 'AdminAccount'
-  senderModel: {
     type: String,
     required: true,
-    enum: ['Customer', 'AdminAccount'] 
   },
-  messageType: {
+  senderType: {
     type: String,
-    enum: ChatMessageType,
-    required: true
+    required: true,
+    enum: ['CUSTOMER', 'SHOP']
   },
   content: {
     type: String,
@@ -31,6 +24,14 @@ const chatMessageSchema = new Schema({
     type: [String],
     required: false
   },
+  isRead: {
+    type: Boolean,
+    default: false
+  },
+  readAt: {
+    type: Date,
+    default: null,
+  }
 }, {
   timestamps: true,
 });

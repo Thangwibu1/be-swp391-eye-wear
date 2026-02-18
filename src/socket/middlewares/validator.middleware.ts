@@ -29,42 +29,30 @@ export const validateSocketData = (schema: z.ZodSchema<any>) => {
  */
 export const withValidation = <T>(
     schema: z.ZodSchema<T>,
-    handler: (socket: Socket, data: T, callback?: any) => void | Promise<void>
+    handler: (data: T, callback: any) => void | Promise<void>
     //                                  ↑ Thêm callback parameter
 ) => {
-    return async (socket: Socket, data: any, callback?: any) => {
-        //                                    ↑ Nhận callback từ Socket.IO
+    return async (data: any, callback: any) => {
         try {
             // Validate data
-            const validatedData = schema.parse(data);
+            const validatedData = schema.parse(JSON.parse(data));
             // Gọi handler với validated data VÀ callback
-            await handler(socket, validatedData, callback);
-            //                                   ↑ Truyền callback vào handler
+            await handler(validatedData, callback);
+            handler;
         } catch (error) {
             if (error instanceof ZodError) {
                 // Nếu có callback, trả error qua callback
-                if (callback) {
-                    callback({
-                        success: false,
-                        error: 'Validation error',
-                    });
-                } else {
-                    // Nếu không có callback, emit error event
-                    socket.emit('error', {
-                        message: `Validation error`,
-                    });
-                }
+                callback({
+                    success: false,
+                    code: 'VALIDATION_ERROR',
+                    message: error.message,
+                });
             } else {
-                if (callback) {
-                    callback({
-                        success: false,
-                        error: 'An error occurred',
-                    });
-                } else {
-                    socket.emit('error', {
-                        message: 'An error occurred',
-                    });
-                }
+                callback({
+                    success: false,
+                    code: 'SERVER_ERROR',
+                    message: 'An error occurred',
+                });
             }
         }
     };

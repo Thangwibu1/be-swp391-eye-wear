@@ -8,13 +8,12 @@ const roomChatSchema = new Schema(
             ref: 'Customer',
             required: true,
         },
-        // lưu lại tin nhắn gần nhất để đỡ tốn công query
-        lastMessages: {
+        lastMessage: {
             type: {
-                messageType: {
+                senderType: {
                     type: String,
-                    enum: ChatMessageType,
                     required: true,
+                    enum: ['CUSTOMER', 'SHOP'],
                 },
                 content: {
                     type: String,
@@ -27,7 +26,7 @@ const roomChatSchema = new Schema(
             },
             default: null,
         },
-        lastMessageSentTime: {
+        lastMessageAt: {
             type: Date,
             default: null,
         },
