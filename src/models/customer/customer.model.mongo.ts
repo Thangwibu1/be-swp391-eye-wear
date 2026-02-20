@@ -114,6 +114,11 @@ const CustomerSchema = new Schema<ICustomerDocument>(
             ref: 'AdminAccount',
             default: null,
         },
+        lastOnlineAt: {
+            type: Date,
+            required: false,
+            default: new Date(),
+        }
     },
     {
         timestamps: true,

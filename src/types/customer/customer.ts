@@ -39,7 +39,8 @@ export const CustomerSchema = z.object({
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().nullable(),
-    deletedBy: z.string().or(z.instanceof(Types.ObjectId)).nullable()
+    deletedBy: z.string().or(z.instanceof(Types.ObjectId)).nullable(),
+    lastOnlineAt: z.date().nullable(),
 });
 
 // Create Customer Schema (for registration/creation)
