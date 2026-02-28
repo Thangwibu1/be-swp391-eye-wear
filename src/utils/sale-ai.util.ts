@@ -1,5 +1,5 @@
 import { model } from '../config/google-gemini-ai.config';
-import { buildAskSlotPrompt, buildIntentPrompt } from './prompt.util';
+import { buildAnswerPrompt, buildAskSlotPrompt, buildIntentPrompt } from './prompt.util';
 export function isAISessionExpired(lastInteractionAt: Date): boolean {
     const now = Date.now();
     const last = new Date(lastInteractionAt).getTime();
@@ -59,4 +59,20 @@ export async function askForMissingSlots(
 
   const result = await model.generateContent(prompt);
   return result.response.text().trim();
+}
+export function cleanAIResponse(rawText: string): string {
+    if (!rawText) return "";
+    let cleaned = rawText.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    return cleaned;
+}
+export async function getAnswerByLLM(message: string, products: any[]) {
+    const prompt = buildAnswerPrompt(message, products);
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    // Dọn dẹp HTML trước khi gửi xuống Frontend
+    const finalHTML = cleanAIResponse(text);
+    return finalHTML;
 }

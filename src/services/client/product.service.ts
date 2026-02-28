@@ -289,7 +289,9 @@ class ProductService {
             if (intent.priceUpper)
                 query['variants.finalPrice'].$lte = intent.priceUpper;
         }
-
+        if(intent.brand){
+            query.brand = { $regex: intent.brand, $options: 'i' };
+        }
         if (intent.color) {
             query.variants = {
                 $elemMatch: {
@@ -304,6 +306,9 @@ class ProductService {
 
         if (intent.shape) {
             query['spec.shape'] = { $regex: intent.shape, $options: 'i' };
+        }
+        if (intent.style) {
+            query['spec.style'] = { $regex: intent.style, $options: 'i' };
         }
 
         return ProductModel.find(query).limit(4);

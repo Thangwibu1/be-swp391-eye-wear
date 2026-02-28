@@ -1,3 +1,5 @@
+import { config } from "../config/env.config";
+
 export function buildIntentPrompt(message: string) {
     return `
 Trích xuất thông tin mua kính từ câu sau.
@@ -14,6 +16,8 @@ Trả về JSON DUY NHẤT theo schema:
   "priceUpper": number | null | undefined,
   "color": string | null | undefined,
   "shape": string | null | undefined,
+  "brand": string | null | undefined,
+  "style": string | null | undefined,
   "isRefinement": boolean
 }
 
@@ -23,28 +27,39 @@ Rules:
 - Nếu user đang thay đổi yêu cầu → isRefinement = true.
 - Không giải thích. Chỉ trả định dạng JSON.
 - Để lên các field này dạng tiếng anh (English) nha
+- priceUpper là giá tối đa(giá đến) khách có thể trả, priceLower(giá từ) là giá tối thiểu khách có thể trả, nếu chỉ đề cập 1 trong 2 thì cái còn lại có giá trị tối đa trong khoảng
 `;
 }
 export function buildAnswerPrompt(message: string, products: any[]) {
     const context = products
-        .map(p => `${p.nameBase} - ${p.brand ?? 'no brand'} - Link sản phẩm: https://swp391-eye-wear-shop.com/products/${p._id}`)
-        .join('\n');
+        .map(p => `- Tên: ${p.nameBase} | Thương hiệu: ${p.brand ?? 'Không có'} | Link: ${config.cors.origin[2]}/products/${p._id}`)
+        .join("\n");
 
     return `
-Bạn là nhân viên bán kính. Hãy giới thiệu từng loại sản phẩm bên dưới cho khách hàng. 
+Bạn là nhân viên tư vấn bán kính mắt chuyên nghiệp. 
+Nhiệm vụ: Dựa vào danh sách sản phẩm bên dưới để tư vấn cho khách hàng.
 
-- Không hỏi lại thông tin đã đủ.
-- Không hỏi lại type/gender.
-- Nếu không có sản phẩm nào thì viết câu xin lỗi khách và hỏi khách lựa lại nha
-- Tư vấn tự nhiên. Để lại những đường link chi tiết sản phẩm để khách hàng biết tìm nó ở đâu(lấy đúng link sản phẩm tôi đã cung cấp)
+DỮ LIỆU SẢN PHẨM:
+${context || "KHO TRỐNG - KHÔNG CÓ SẢN PHẨM NÀO"}
+YÊU CẦU QUAN TRỌNG VỀ DỮ LIỆU:
+- TUYỆT ĐỐI KHÔNG giới thiệu bất kỳ sản phẩm nào không có trong danh sách "DỮ LIỆU SẢN PHẨM CÓ TRONG KHO" ở trên.
+- Nếu danh sách trên trống hoặc không tìm thấy sản phẩm nào khớp với yêu cầu khách, hãy xin lỗi chân thành và hỏi lại nhu cầu khách. KHÔNG ĐƯỢC tự bịa ra tên sản phẩm hay link.
+- Nếu không có sản phẩm nào (Product Length: ${products.length} là 0), hãy xin lỗi chân thành và hỏi lại nhu cầu khách
+- Nếu có sản phẩm, hãy tư vấn tự nhiên và chèn link vào tên sản phẩm như yêu cầu.
 
-User:
+YÊU CẦU ĐỊNH DẠNG PHẢN HỒI (BẮT BUỘC):
+- 1. Sử dụng HTML thuần để trình bày. 
+- 2. Trả về văn bản tư vấn tự nhiên, KHÔNG chia khung, KHÔNG chia cột.
+- 3. Khi nhắc đến tên sản phẩm, hãy kẹp nó trong thẻ <a> với link tương ứng.
+   Ví dụ: "Bạn có thể tham khảo mẫu <a href='LINK_SP' style='color: #007bff; font-weight: bold;'>Tên sản phẩm</a>, mẫu này rất hợp với..."
+- 4. Chỉ trả về mã HTML sạch (bọc trong 1 thẻ <div> duy nhất).
+- 5. KHÔNG sử dụng ký tự "\\n" (backslash n) trong văn bản trả về mà thay bằng <br> hoặc các thẻ đóng mở khối (p, div) để xuống dòng.
+- 6. KHÔNG bao bọc toàn bộ kết quả trong Markdown code block (ví dụ \`\`\`html). Chỉ trả về mã HTML trực tiếp.
+
+CÂU HỎI CỦA KHÁCH:
 "${message}"
 
-Product Length: ${products.length}
-
-Products:
-${context}
+Bắt đầu tư vấn:
 `;
 }
 export function buildAskSlotPrompt(

@@ -10,6 +10,8 @@ export interface IConversationSession extends Document {
     priceUpper?: number;
     color?: string;
     shape?: string;
+    brand?: string;
+    style?: string;
   };
 
   stage: "DISCOVERY" | "RECOMMENDING" | "REFINING";

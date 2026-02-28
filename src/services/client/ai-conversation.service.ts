@@ -5,6 +5,7 @@ import { buildAnswerPrompt } from '../../utils/prompt.util';
 import {
     askForMissingSlots,
     extractIntentByLLM,
+    getAnswerByLLM,
     getMissingRequiredSlots,
     isReadyToRecommend,
     mergeIntent,
@@ -39,9 +40,7 @@ class AIConversation {
 
         // extract intent from user message
         const extracted = await extractIntentByLLM(message);
-        console.log(">>>extracted::", extracted);
         session.intent = mergeIntent(session.intent, extracted );
-        console.log("current intent::", session.intent);
         if (extracted.isRefinement && session.stage === 'RECOMMENDING') {
             session.stage = 'REFINING';
         }
@@ -74,12 +73,7 @@ class AIConversation {
         if (session.stage === 'REFINING') {
             const products = await productService.buildQueryForAISuggestion(session.intent);
             console.log(">>>products::", products.length);
-            for (const item of products) {
-                console.log(">>>id match::", item._id);
-            }
-            const prompt = buildAnswerPrompt(message, products);
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
+            const text = await getAnswerByLLM(message, products);
             await aiMessageService.createMessage('AI', session._id.toString(), text);
             session.stage = 'RECOMMENDING';
             await session.save();
@@ -94,16 +88,12 @@ class AIConversation {
          */
         const products = await productService.buildQueryForAISuggestion(session.intent);
         console.log(">>>products::", products.length);
-        for (const item of products) {
-            console.log(">>>id match::", item._id);
-        }
 
-        const prompt = buildAnswerPrompt(message, products);
-        const result = await model.generateContent(prompt);
-        await aiMessageService.createMessage('AI', customerId, result.response.text());
+        const result = await getAnswerByLLM(message, products);
+        await aiMessageService.createMessage('AI', customerId, result);
         await session.save();
 
-        return { message: result.response.text() };
+        return { message: result };
     }
 }
 
