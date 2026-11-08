@@ -55,20 +55,20 @@ class PaymentController {
     };
 
     handlePayOsResultCallback = async (req: Request, res: Response) => {
-        const payload = req.body.data as any;
-        const [_notUseVar, paymentId] = payload.description.split(" ");
-        console.log(">>> paymentId::", paymentId);
-        await paymentClientService.handlePayosResultCallback(paymentId);
+        // const payload = req.body.data as any;
+        // const [_notUseVar, paymentId] = payload.description.split(" ");
+        // console.log(">>> paymentId::", paymentId);
+        // await paymentClientService.handlePayosResultCallback(paymentId);
         res.json(ApiResponse.success('PayOS payment successful', null));
     };
 
     handlePayOsCancelCallback = async (req: Request, res: Response) => {
-        // const invoiceId = req.query.invoiceId as string;
-        // const paymentId = req.query.paymentId as string;
-        // console.log(">>> handle cancel payos::", invoiceId, paymentId);
-        // await paymentClientService.handlePayosCancelCallback(paymentId);
+        const invoiceId = req.query.invoiceId as string;
+        const paymentId = req.query.paymentId as string;
+        console.log(">>> handle cancel payos::", invoiceId, paymentId);
+        await paymentClientService.handlePayosCancelCallback(paymentId);
         res.redirect(
-            `${process.env.FE_CLIENT_DOMAIN}/payment-result?isSuccess=false&invoiceId=`
+            `${process.env.FE_CLIENT_DOMAIN}/payment-result?isSuccess=false&invoiceId=${invoiceId}`
         );
     }
 
