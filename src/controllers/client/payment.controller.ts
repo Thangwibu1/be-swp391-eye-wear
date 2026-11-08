@@ -63,12 +63,12 @@ class PaymentController {
     };
 
     handlePayOsCancelCallback = async (req: Request, res: Response) => {
-        const invoiceId = req.query.invoiceId as string;
-        const paymentId = req.query.paymentId as string;
-        console.log(">>> handle cancel payos::", invoiceId, paymentId);
-        await paymentClientService.handlePayosCancelCallback(paymentId);
+        // const invoiceId = req.query.invoiceId as string;
+        // const paymentId = req.query.paymentId as string;
+        // console.log(">>> handle cancel payos::", invoiceId, paymentId);
+        // await paymentClientService.handlePayosCancelCallback(paymentId);
         res.redirect(
-            `${config.cors.origin[2]}/payment-result?isSuccess=false&invoiceId=${invoiceId}`
+            `${process.env.FE_CLIENT_DOMAIN}/payment-result?isSuccess=false&invoiceId=`
         );
     }
 
