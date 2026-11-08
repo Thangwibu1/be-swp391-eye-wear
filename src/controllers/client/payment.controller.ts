@@ -105,6 +105,24 @@ class PaymentController {
             params: vnp_Params
         }));
     }
+    handleRecurringAutoChargeSuccess = async (req: Request, res: Response) => {
+        let vnp_Params = req.query;
+        res.json(ApiResponse.success('ok', {
+            params: vnp_Params
+        }));
+    }
+    handleRecurringAutoChargeFail = async (req: Request, res: Response) => {
+        let vnp_Params = req.query;
+        res.json(ApiResponse.success('ok', {
+            params: vnp_Params
+        }));
+    }
+    testRecurringAutoCharge = async (req: Request, res: Response) => {
+        const data = await paymentClientService.chargeAutomatically();
+        res.json(ApiResponse.success('ok', {
+            data
+        }));
+    }
 }
 
 export default new PaymentController();
