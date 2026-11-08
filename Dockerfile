@@ -1,5 +1,5 @@
 # --- Stage 1: Builder ---
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Cài đặt các công cụ build bắt buộc cho Alpine
 RUN apk add --no-cache python3 make g++
@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # --- Stage 2: Production ---
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Cài đặt môi trường chạy
 WORKDIR /app
