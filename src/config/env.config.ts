@@ -139,8 +139,8 @@ export const config: Config = {
         origin: [
             process.env.FE_CLIENT_DOMAIN || '',
             process.env.FE_ADMIN_DOMAIN || '',
-            'https://eyewear-optic.shop',
-            'https://www.eyewear-optic.shop',
+            'https://eyewear-fe.ngocthang.io.vn',
+            'https://www.eyewear-fe.ngocthang.io.vn',
             'https://test-auth-proj.vercel.app'
         ],
     },

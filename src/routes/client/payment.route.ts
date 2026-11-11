@@ -24,6 +24,9 @@ router.get(
 );
 router.get('/vnpay/recurring', paymentController.testRecurringPayment);
 router.get('/vnpay/recurring/result-callback', paymentController.handleRecurringPayment);
+router.get('/vnpay/recurring-auto/result-callback-success', paymentController.handleRecurringAutoChargeSuccess);
+router.get('/vnpay/recurring-auto/result-callback-fail', paymentController.handleRecurringAutoChargeFail);
+router.get('/vnpay/recurring-auto', paymentController.testRecurringAutoCharge);
 // Create payment
 router.use(authenticateMiddlewareClient);
 router.get(

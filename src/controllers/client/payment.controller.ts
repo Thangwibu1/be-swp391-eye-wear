@@ -68,7 +68,7 @@ class PaymentController {
         console.log(">>> handle cancel payos::", invoiceId, paymentId);
         await paymentClientService.handlePayosCancelCallback(paymentId);
         res.redirect(
-            `${config.cors.origin[2]}/payment-result?isSuccess=false&invoiceId=${invoiceId}`
+            `${process.env.FE_CLIENT_DOMAIN}/payment-result?isSuccess=false&invoiceId=${invoiceId}`
         );
     }
 
@@ -103,6 +103,24 @@ class PaymentController {
         let vnp_Params = req.query;
         res.json(ApiResponse.success('ok', {
             params: vnp_Params
+        }));
+    }
+    handleRecurringAutoChargeSuccess = async (req: Request, res: Response) => {
+        let vnp_Params = req.query;
+        res.json(ApiResponse.success('ok', {
+            params: vnp_Params
+        }));
+    }
+    handleRecurringAutoChargeFail = async (req: Request, res: Response) => {
+        let vnp_Params = req.query;
+        res.json(ApiResponse.success('ok', {
+            params: vnp_Params
+        }));
+    }
+    testRecurringAutoCharge = async (req: Request, res: Response) => {
+        const data = await paymentClientService.chargeAutomatically();
+        res.json(ApiResponse.success('ok', {
+            data
         }));
     }
 }

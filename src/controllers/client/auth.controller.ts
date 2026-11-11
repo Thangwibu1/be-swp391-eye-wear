@@ -112,7 +112,7 @@ class AuthController {
             sameSite: config.env == 'deployment' ? 'none' : 'lax',
         });
         res.redirect(
-            `${config.cors.origin[2]}/google/oauth/callback?accessToken=${tokenPair.accessToken}`
+            `${process.env.FE_CLIENT_DOMAIN}/google/oauth/callback?accessToken=${tokenPair.accessToken}`
         );
     };
 

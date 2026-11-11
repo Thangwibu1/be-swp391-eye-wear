@@ -28,7 +28,6 @@ import { isPayOSConfigured, payOS } from '../../config/payos.config';
 import { config } from '../../config/env.config';
 class PaymentClientService {
     handlePaymentCallback = async (invoiceId: string, paymentId: string) => {
-        
         // xóa timeout job
         removeJobFromQueue({
             invoiceId: invoiceId,
@@ -42,8 +41,10 @@ class PaymentClientService {
             status: PaymentStatus.UNPAID,
             deletedAt: null,
         });
-        if(!paymentDetail){
-            throw new ConflictRequestError("This payment have already been expired or paid");
+        if (!paymentDetail) {
+            throw new ConflictRequestError(
+                'This payment have already been expired or paid'
+            );
         }
         if (invoiceDetail && paymentDetail) {
             // trừ stock thật mongo
@@ -144,8 +145,8 @@ class PaymentClientService {
             }
 
             const targetStatus = !hasManufacturing
-                    ? InvoiceStatus.APPROVED
-                    : InvoiceStatus.DEPOSITED;
+                ? InvoiceStatus.APPROVED
+                : InvoiceStatus.DEPOSITED;
 
             await invoiceRepository.updateByFilter(
                 { _id: invoiceId },
@@ -153,11 +154,16 @@ class PaymentClientService {
             );
 
             // Send invoice confirmation email after successful online payment
-            await mailAdminService.sendInvoiceConfirmation(invoiceDetail as any);
+            await mailAdminService.sendInvoiceConfirmation(
+                invoiceDetail as any
+            );
         }
     };
 
-    handlePaymentFailCallback = async (invoiceId: string, paymentId: string) => {
+    handlePaymentFailCallback = async (
+        invoiceId: string,
+        paymentId: string
+    ) => {
         // xóa timeout job
         removeJobFromQueue({
             invoiceId: invoiceId,
@@ -202,13 +208,16 @@ class PaymentClientService {
                 { _id: invoiceId },
                 { status: InvoiceStatus.CANCELED, paymentUrl: null }
             );
-            await paymentRepository.updateByFilter({
-                _id: paymentId,
-            }, {
-                status: PaymentStatus.PAID_FAIL
-            });
+            await paymentRepository.updateByFilter(
+                {
+                    _id: paymentId,
+                },
+                {
+                    status: PaymentStatus.PAID_FAIL,
+                }
+            );
         }
-    }
+    };
 
     getVnPayUrl = async (
         customerId: string,
@@ -233,7 +242,10 @@ class PaymentClientService {
         // let amount = orderDetail.payment.finalPrice;
         let vnPayOrderId = `${invoiceDetail._id.toString()}-${Date.now()}`;
         let amount =
-            (invoiceDetail.totalPrice - invoiceDetail.totalDiscount + invoiceDetail.feeShip) * 100;
+            (invoiceDetail.totalPrice -
+                invoiceDetail.totalDiscount +
+                invoiceDetail.feeShip) *
+            100;
         let bankCode = '';
 
         let locale = 'vi';
@@ -245,7 +257,8 @@ class PaymentClientService {
         vnp_Params['vnp_Locale'] = locale;
         vnp_Params['vnp_CurrCode'] = currCode;
         vnp_Params['vnp_TxnRef'] = vnPayOrderId;
-        vnp_Params['vnp_OrderInfo'] = 'Payment for transaction ID:' + vnPayOrderId;
+        vnp_Params['vnp_OrderInfo'] =
+            'Payment for transaction ID:' + vnPayOrderId;
         vnp_Params['vnp_OrderType'] = 'other';
         vnp_Params['vnp_Amount'] = amount;
         vnp_Params['vnp_ReturnUrl'] = returnUrl;
@@ -314,8 +327,8 @@ class PaymentClientService {
                     invoiceId,
                 };
                 // END XỬ LÍ LOGIC HẬU THANH TOÁN
-            } else if(vnp_Params.vnp_ResponseCode == '24'){
-                console.log(">>> handle cancel cb here::", invoiceId);
+            } else if (vnp_Params.vnp_ResponseCode == '24') {
+                console.log('>>> handle cancel cb here::', invoiceId);
                 const paymentDetail = await paymentRepository.findOne({
                     invoiceId: invoiceId,
                     deletedAt: null,
@@ -325,13 +338,15 @@ class PaymentClientService {
                         'Not found payment to handle'
                     );
                 }
-                await this.handlePaymentFailCallback(invoiceId, paymentDetail._id.toString());
+                await this.handlePaymentFailCallback(
+                    invoiceId,
+                    paymentDetail._id.toString()
+                );
                 return {
                     isSuccess: false,
                     invoiceId,
-                }
-            }
-            else {
+                };
+            } else {
                 throw new ForbiddenRequestError('Payment failed');
             }
         } catch (error) {
@@ -420,7 +435,10 @@ class PaymentClientService {
 
         const orderForPayos = {
             orderCode: new Date().getTime(),
-            amount: (existInvoice.totalPrice - existInvoice.totalDiscount) + existInvoice.feeShip,
+            amount:
+                existInvoice.totalPrice -
+                existInvoice.totalDiscount +
+                existInvoice.feeShip,
             description: `${paymentId}`,
             items: [],
             cancelUrl: `${process.env.APP_API}/payments/payos/cancel-result-callback?invoiceId=${invoiceId}&paymentId=${paymentId}`,
@@ -622,13 +640,14 @@ class PaymentClientService {
         // invoiceId: string,
         ipAddr: string
     ) => {
-
         let date = new Date();
         let createDate = moment(date).format('YYYYMMDDHHmmss');
         let tmnCode = process.env.VNPAY_TMN_CODE;
         let secretKey = process.env.VNPAY_SECRET;
-        let vnpUrl = 'https://sandbox.vnpayment.vn/token_ui/pay-create-token.html';
-        let returnUrl = 'https://eyewear-backend.xyz/api/v1/payments/vnpay/recurring/result-callback';
+        let vnpUrl =
+            'https://sandbox.vnpayment.vn/token_ui/pay-create-token.html';
+        let returnUrl =
+            'https://eyewear-backend.xyz/api/v1/payments/vnpay/recurring/result-callback';
         let vnPayOrderId = `${Date.now()}`;
         let amount = 20000 * 100;
         let bankCode = '';
@@ -641,16 +660,17 @@ class PaymentClientService {
         vnp_Params['vnp_locale'] = locale;
         vnp_Params['vnp_curr_code'] = currCode;
         vnp_Params['vnp_txn_ref'] = vnPayOrderId;
-        vnp_Params['vnp_txn_desc'] = 'Payment for transaction ID:' + vnPayOrderId;
+        vnp_Params['vnp_txn_desc'] =
+            'Payment for transaction ID:' + vnPayOrderId;
         vnp_Params['vnp_card_type'] = '01';
         vnp_Params['vnp_amount'] = amount;
         vnp_Params['vnp_ip_addr'] = ipAddr;
         vnp_Params['vnp_create_date'] = createDate;
         // create 2 url
         vnp_Params['vnp_return_url'] = returnUrl;
-        
+
         vnp_Params['vnp_command'] = 'pay_and_create';
-        vnp_Params['vnp_app_user_id']= "my_app_client_id"
+        vnp_Params['vnp_app_user_id'] = 'my_app_client_id';
         if (bankCode !== null && bankCode !== '') {
             vnp_Params['vnp_bank_code'] = bankCode;
         }
@@ -663,51 +683,90 @@ class PaymentClientService {
         let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_secure_hash'] = signed;
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-        console.log(">>> vnUrl::", vnpUrl);
+        console.log('>>> vnUrl::', vnpUrl);
         return vnpUrl;
-    }
-    
-    chargeAutomatically = async () => {
-        const ipAddr = "103.161.16.77";
-        const token = '';
-        let date = new Date();
-        let createDate = moment(date).format('YYYYMMDDHHmmss');
-        let tmnCode = process.env.VNPAY_TMN_CODE;
-        let secretKey = process.env.VNPAY_SECRET;
-        let vnpUrl = 'https://sandbox.vnpayment.vn/token_ui/payment-token.html';
-        let returnUrl = 'https://eyewear-backend.xyz/api/v1/payments/vnpay/recurring-auto/result-callback-success';
-        const cancel_url = 'https://eyewear-backend.xyz/api/v1/payments/vnpay/recurring-auto/result-callback-fail';
-        let vnPayOrderId = `${Date.now()}`;
-        let amount = 20000 * 100;
-        let locale = 'vi';
-        let currCode = 'VND';
-        let vnp_Params: any = {};
-        vnp_Params['vnp_version'] = '2.1.0';
-        vnp_Params['vnp_command'] = 'token_pay';
-        vnp_Params['vnp_tmn_code'] = tmnCode;
-        vnp_Params['vnp_txn_ref'] = vnPayOrderId;
-        vnp_Params['vnp_app_user_id']= "my_app_client_id"
-        vnp_Params['vnp_token'] = token;
-        vnp_Params['vnp_amount'] = amount;
-        vnp_Params['vnp_curr_code'] = currCode;
-        vnp_Params['vnp_txn_desc'] = 'Auto charge description';
-        vnp_Params['vnp_create_date'] = createDate;
-        vnp_Params['vnp_ip_addr'] = ipAddr;
-        vnp_Params['vnp_locale'] = locale;
-        vnp_Params['vnp_return_url'] = returnUrl;
-        vnp_Params['vnp_cancel_url'] = cancel_url;
+    };
 
-        vnp_Params = objectUtil.sortObject(vnp_Params);
-        const querystring = require('qs');
-        let signData = querystring.stringify(vnp_Params, { encode: false });
-        let crypto = require('crypto');
-        let hmac = crypto.createHmac('sha512', secretKey);
-        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-        vnp_Params['vnp_secure_hash'] = signed;
-        vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-        console.log(">>> vnUrl::", vnpUrl);
-        return vnpUrl;
-    }
+    chargeAutomatically = async () => {
+        const secretKey = process.env.VNPAY_SECRET;
+        const vnpUrl = 'https://sandbox.vnpayment.vn/recurring-payment/execute';
+
+        const ipAddr = '103.161.16.77';
+        const requestId = `REQ_${Date.now()}`; // Phải có RequestId
+        const createDate = moment().format('YYYYMMDDHHmmss');
+        const vnPayOrderId = `${Date.now()}`;
+        const amount = '2000000'; // 20.000 VND * 100
+
+        // 1. Tạo object dữ liệu THỰC TẾ sẽ gửi đi (Đúng chuẩn PascalCase của Backend API)
+        const data: any = {
+            vnp_RequestId: requestId,
+            vnp_Version: '2.1.0',
+            vnp_Command: 'token_pay',
+            vnp_TmnCode: process.env.VNPAY_TMN_CODE,
+            vnp_Token:
+                '1001775918467upD9ClpmDDZ3M00KyEBSNMjbLjGSU1F3qC9s0kbPKXKe7g3mH0D',
+            vnp_Amount: amount,
+            vnp_AppUserId: '4', // Phải khớp với lúc tạo token
+            vnp_TxnRef: vnPayOrderId,
+            vnp_OrderInfo: 'Auto charge thang 5',
+            vnp_IpAddr: ipAddr,
+            vnp_CreateDate: createDate,
+            vnp_TransactionDate: createDate,
+        };
+
+        // 2. Tạo chuỗi Hash theo chuẩn Backend API (Nối các giá trị bằng dấu '|')
+        // Thứ tự: vnp_RequestId|vnp_Version|vnp_Command|vnp_TmnCode|vnp_Token|vnp_Amount|vnp_AppUserId|vnp_TxnRef|vnp_OrderInfo|vnp_IpAddr|vnp_CreateDate
+        const hashData = `${data.vnp_RequestId}|${data.vnp_Version}|${data.vnp_Command}|${data.vnp_TmnCode}|${data.vnp_Token}|${data.vnp_Amount}|${data.vnp_AppUserId}|${data.vnp_TxnRef}|${data.vnp_OrderInfo}|${data.vnp_IpAddr}|${data.vnp_CreateDate}`;
+
+        const crypto = require('crypto');
+        const hmac = crypto.createHmac('sha512', secretKey);
+        const signed = hmac
+            .update(Buffer.from(hashData, 'utf-8'))
+            .digest('hex');
+
+        // 3. Gán Hash vào data
+        data['vnp_SecureHash'] = signed;
+
+        // 4. Gọi API
+        try {
+            const response = await axios.post(vnpUrl, {
+                reqId: '1607654463114',
+                command: 'pay_n_recurring',
+                tmnCode: data.vnp_TmnCode,
+                order: {
+                    orderReference: data.vnp_TxnRef,
+                    orderInfo: data.vnp_OrderInfo,
+                    orderType: 'baohiem',
+                },
+                transaction: {
+                    recurringFrequencyNumber: 1,
+                    recurringFrequency: 'month',
+                    recurringNumber: 0,
+                    recurringAmount: data.vnp_Amount,
+                    amount: data.vnp_Amount,
+                    currCode: 'VND',
+                    returnUrl:
+                        'https://eyewear-backend.xyz/api/v1/payments/vnpay/recurring-auto/result-callback-success',
+                    mcDate: data.vnp_CreateDate,
+                    recurringDate: 20260411,
+                    recurringStartDate: 20260411,
+                    recurringEndDate: 99991231,
+                    ipAddr: data.vnp_IpAddr,
+                    userAgent: 'Chrome',
+                },
+                version: data.vnp_Version,
+                locale: 'vn',
+                app: {
+                    userId: '1234',
+                },
+                secureHash: data.vnp_SecureHash,
+            });
+            return response.data;
+        } catch (error) {
+            console.log('>>> error', error);
+        }
+    };
 }
 
 export default new PaymentClientService();
+// /recurring-payment/execute

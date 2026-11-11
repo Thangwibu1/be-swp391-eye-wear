@@ -39,7 +39,7 @@ export const generateInvoiceConfirmationHtml = (invoice: Invoice): string => {
                         <p><strong>Người nhận:</strong> ${invoice.fullName}</p>
                         <p><strong>Số điện thoại:</strong> ${invoice.phone}</p>
                         <p><strong>Địa chỉ:</strong> ${invoice.address.street}, ${invoice.address.ward}, ${invoice.address.city}</p>
-                        <p><strong>Chi tiết đơn hàng: </strong><a href="https://eyewear-optic.shop/account/orders/${invoice._id.toString()}">Tại đây</a></p>
+                        <p><strong>Chi tiết đơn hàng: </strong><a href="https://eyewear-fe.ngocthang.io.vn/account/orders/${invoice._id.toString()}">Tại đây</a></p>
                     </div>
 
                     <p>Bạn có thể theo dõi tình trạng đơn hàng trong phần <strong>Lịch sử đơn hàng</strong> trên website của chúng mình.</p>

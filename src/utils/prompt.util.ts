@@ -98,7 +98,7 @@ export function buildAnswerPrompt(paraphrasedIntent: string, products: any[]) {
                 faceShapeInfo
             )}\n- Giá tham khảo: ${priceRange}\n- Variants chi tiết: ${
                 variantSummary || 'không có variant'
-            }\n- Link sản phẩm: https://eyewear-optic.shop/products/${p._id}`;
+            }\n- Link sản phẩm: https://eyewear-fe.ngocthang.io.vn/products/${p._id}`;
         })
         .join('\n\n');
 
