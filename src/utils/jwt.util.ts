@@ -21,7 +21,7 @@ export const generateAccessToken = (
     };
 
     return jwt.sign(payload, config.jwt.secret, {
-        expiresIn: config.jwt.expiresIn, // VD: '7d'
+        expiresIn: config.jwt.expiresIn, // VD: '1d'
     } as jwt.SignOptions);
 };
 /**

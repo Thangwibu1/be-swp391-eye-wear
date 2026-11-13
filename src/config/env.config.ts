@@ -117,11 +117,11 @@ export const config: Config = {
     jwt: {
         // Secret key để mã hóa access token (phải đủ dài và phức tạp)
         secret: process.env.JWT_SECRET || 'your-secret-key',
-        // Thời gian hết hạn access token (7d = 7 ngày, 1h = 1 giờ)
-        expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+        // Thời gian hết hạn access token (1d = 1 ngày)
+        expiresIn: process.env.JWT_EXPIRES_IN || '1d',
         expiresInSecond: process.env.JWT_EXPIRES_IN_SECOND
             ? Number(process.env.JWT_EXPIRES_IN_SECOND)
-            : 600,
+            : 86400,
         // Secret key cho refresh token (khác với access token)
         refreshSecret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret',
         // Thời gian hết hạn refresh token (thường dài hơn access token)
